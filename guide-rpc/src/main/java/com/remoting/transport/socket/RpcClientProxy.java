@@ -1,12 +1,15 @@
 package com.remoting.transport.socket;
 
-import com.common.RpcRequest;
+import com.common.message.RpcRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+/**
+ * proxy主要是用来发送rpcRequest
+ */
 @Slf4j
 public class RpcClientProxy implements InvocationHandler {
 
@@ -19,7 +22,7 @@ public class RpcClientProxy implements InvocationHandler {
     }
 
     public <T> T getClinet(Class<T> clazz){
-        return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{clazz},RpcClientProxy.this);
+        return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{clazz},this);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.remoting.transport.socket;
 
+import com.common.enums.RpcErrorMessageEnum;
+import com.common.exceptions.RpcException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -25,13 +27,18 @@ public class RpcServer {
     }
 
     public void register(Object service, int port){
+
+        if(service == null){
+            throw new RpcException(RpcErrorMessageEnum.SERVICE_CAN_NOT_BE_NULL);
+        }
+
         try(ServerSocket server = new ServerSocket(port);){
             log.info("servers start...");
 
             Socket socket;
             while((socket = server.accept()) != null){
                 log.info("client connect ..." + cnt.getAndIncrement());
-                threadPool.execute(new WorkerThread(socket,service));
+                threadPool.execute(new ClientMessageHandlerThread(socket,service));
             }
 
         } catch (IOException e) {
