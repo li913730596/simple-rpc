@@ -1,4 +1,4 @@
-package com.remoting.transport.socket.handlers;
+package com.remoting.transport.handlers;
 
 import com.common.enums.RpcErrorMessageEnum;
 import com.common.enums.RpcResponseCode;
@@ -16,7 +16,8 @@ public class RpcRequestHandler {
         log.info("{}",service);
         try {
             Object returnValue =  invokeTargetMethod(rpcRequest, service);
-            return RpcResponse.success(returnValue);
+//            return RpcResponse.success(returnValue);
+            return returnValue;
 
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
             throw new RuntimeException(e);

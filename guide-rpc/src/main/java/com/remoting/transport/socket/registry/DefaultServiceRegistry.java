@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class DefaultServiceRegistry implements ServiceRegistry{
-    private final Map<String , Object> serviceMap = new ConcurrentHashMap<>();
-    private final Set<String> registeredService = ConcurrentHashMap.newKeySet(); // map中的key , 与map中key的更新是同步的
+    private static final Map<String , Object> serviceMap = new ConcurrentHashMap<>();
+    private static final Set<String> registeredService = ConcurrentHashMap.newKeySet(); // map中的key , 与map中key的更新是同步的
 
     @Override
     //将对象的所有实现类全部注册  TODO 实现成注解
@@ -41,6 +41,7 @@ public class DefaultServiceRegistry implements ServiceRegistry{
     @Override
     public Object getService(String name) {
         Object service = serviceMap.get(name);
+
         if(service == null){
             throw new RpcException(RpcErrorMessageEnum.SERVICE_CAN_NOT_BE_FOUND);
         }

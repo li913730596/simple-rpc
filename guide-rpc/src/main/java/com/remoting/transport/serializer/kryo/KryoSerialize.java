@@ -1,51 +1,57 @@
-package com.remoting.transport.netty.serializer;
+package com.remoting.transport.serializer.kryo;
 
 
+import com.common.message.RpcRequest;
+import com.common.message.RpcResponse;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.remoting.transport.netty.message.RpcRequest;
-import com.remoting.transport.netty.message.RpcResponse;
+import com.remoting.transport.serializer.Serializer;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
+
+@Slf4j
 
 public class KryoSerialize implements Serializer {
     private final ThreadLocal<Kryo> kryoThreadLocal = ThreadLocal.withInitial(()->{
         Kryo kryo = new Kryo();
         kryo.register(RpcRequest.class);
         kryo.register(RpcResponse.class);
+        kryo.setReferences(true);  //关闭循环引用;默认true;  设置为true会提高效率
+        kryo.setRegistrationRequired(false); //是否需要注册服务，false；设置为true对于未注册的类会抛出异常。
         return kryo;
     });
     @Override
-    public byte[] encode(Object obj) {
+    public byte[] serialize(Object obj) {
         try(ByteArrayOutputStream ops = new ByteArrayOutputStream();
-        ObjectOutputStream oops = new ObjectOutputStream(ops);){
+        Output output = new Output(ops);){
             Kryo kryo = kryoThreadLocal.get();
             kryoThreadLocal.remove();
-            Output output = new Output();
+
             kryo.writeObject(output,obj);
             byte[] bytes = output.toBytes();
             return bytes;
 
         } catch (IOException e) {
+            log.error("kryo加密出错",e);
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public <T> T decode(byte[] obj, Class<T> clazz) {
-
+    public <T> T deserialize(byte[] obj, Class<T> clazz) {
         try(ByteArrayInputStream ips = new ByteArrayInputStream(obj);
-        ObjectInputStream inputStream = new ObjectInputStream(ips);){
+        Input input = new Input(ips);){
 
             Kryo kryo = kryoThreadLocal.get();
             kryoThreadLocal.remove();
-            Input input = new Input();
-            T object = kryo.readObject(input, clazz);
 
+            T object = kryo.readObject(input, clazz);
             return object;
 
         } catch (IOException e) {
+            log.error("kryo解密出错",e);
             throw new RuntimeException(e);
         }
 

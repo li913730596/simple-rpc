@@ -1,12 +1,12 @@
 package com.common.message;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @ToString
 public class RpcRequest implements Serializable {
