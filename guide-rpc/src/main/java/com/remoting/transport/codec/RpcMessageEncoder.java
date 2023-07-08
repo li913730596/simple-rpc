@@ -1,7 +1,6 @@
 package com.remoting.transport.codec;
 
-import com.common.message.RpcRequest;
-import com.remoting.transport.serializer.Serializer;
+import com.common.serializer.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;

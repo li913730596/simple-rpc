@@ -1,4 +1,4 @@
-package com.remoting.transport.serializer.kryo;
+package com.common.serializer.kryo;
 
 
 import com.common.message.RpcRequest;
@@ -6,7 +6,7 @@ import com.common.message.RpcResponse;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.remoting.transport.serializer.Serializer;
+import com.common.serializer.Serializer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;

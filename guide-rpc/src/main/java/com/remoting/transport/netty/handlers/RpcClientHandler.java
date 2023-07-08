@@ -1,4 +1,4 @@
-package com.remoting.transport.handlers;
+package com.remoting.transport.netty.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;

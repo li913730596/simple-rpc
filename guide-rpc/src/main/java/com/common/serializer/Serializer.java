@@ -1,4 +1,4 @@
-package com.remoting.transport.serializer;
+package com.common.serializer;
 
 public interface Serializer {
 

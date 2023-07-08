@@ -7,6 +7,9 @@ import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 接收处理 服务器的 rpcResponse
+ */
 @Slf4j
 public class NettyClientHandler extends ChannelInboundHandlerAdapter {
     @Override
@@ -30,5 +33,12 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
             //TODO 作用是啥？
             ReferenceCountUtil.release(msg);
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("client catch execption:", cause);
+        cause.printStackTrace();
+        ctx.close();
     }
 }

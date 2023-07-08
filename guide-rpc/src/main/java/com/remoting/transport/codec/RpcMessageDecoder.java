@@ -1,7 +1,6 @@
 package com.remoting.transport.codec;
 
-import com.constants.RpcConstants;
-import com.remoting.transport.serializer.Serializer;
+import com.common.serializer.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -27,14 +26,12 @@ public class RpcMessageDecoder extends ByteToMessageDecoder {
             int length = byteBuf.readInt();
             System.out.println(length);
             if (length == 0 || byteBuf.readableBytes() < 0) {
-                log.info("长度·不对");
+                log.error("data length or byteBuf readableBytes is not valid");
                 return;
             }
 
             if(byteBuf.readableBytes() < length){
-                System.out.println(byteBuf.readableBytes());
                 byteBuf.resetReaderIndex();
-                log.info("消息不全");
                 return;
             }
 
@@ -43,7 +40,7 @@ public class RpcMessageDecoder extends ByteToMessageDecoder {
             Object obj = serializer.deserialize(bytes, clazz);
 
             list.add(obj);
-
+            log.info("success decode Bytebuf to Object");
         }
     }
 }

@@ -3,9 +3,9 @@ package com.remoting.transport.netty.server;
 import com.common.enums.RpcResponseCode;
 import com.common.message.RpcRequest;
 import com.common.message.RpcResponse;
-import com.remoting.transport.handlers.RpcRequestHandler;
-import com.remoting.transport.socket.registry.DefaultServiceRegistry;
-import com.remoting.transport.socket.registry.ServiceRegistry;
+import com.remoting.transport.netty.handlers.RpcRequestHandler;
+import com.common.registry.DefaultServiceRegistry;
+import com.common.registry.ServiceRegistry;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
@@ -37,5 +37,12 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
             }
         }
         super.channelRead(ctx, msg);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("server catch execption :", cause);
+        ctx.newProgressivePromise();
+        ctx.close();
     }
 }

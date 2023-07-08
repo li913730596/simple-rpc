@@ -1,4 +1,4 @@
-package com.remoting.transport.socket.registry;
+package com.common.registry;
 
 import com.common.enums.RpcErrorMessageEnum;
 import com.common.exceptions.RpcException;
