@@ -1,6 +1,10 @@
 package com.common.registry;
 
+import org.apache.curator.shaded.com.google.common.net.InetAddresses;
+
+import java.net.InetSocketAddress;
+
 public interface ServiceRegistry {
-    <T> void register(T service);
-    Object getService(String name);
+    void registerService(String serviceName, InetSocketAddress inetSocketAddress);
+    Object lookupService(String serviceName);
 }

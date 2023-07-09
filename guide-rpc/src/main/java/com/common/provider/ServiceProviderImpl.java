@@ -1,20 +1,21 @@
-package com.common.registry;
+package com.common.provider;
 
 import com.common.enums.RpcErrorMessageEnum;
 import com.common.exceptions.RpcException;
+import com.common.provider.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
-public class DefaultServiceRegistry implements ServiceRegistry{
+public class ServiceProviderImpl implements ServiceProvider {
     private static final Map<String , Object> serviceMap = new ConcurrentHashMap<>();
     private static final Set<String> registeredService = ConcurrentHashMap.newKeySet(); // map中的key , 与map中key的更新是同步的
 
     @Override
     //将对象的所有实现类全部注册  TODO 实现成注解
-    public synchronized <T> void register(T service){
+    public <T> void addServiceProvider(T service){
         if(service == null){
             throw new RpcException(RpcErrorMessageEnum.SERVICE_CAN_NOT_BE_FOUND);
         }
@@ -39,7 +40,7 @@ public class DefaultServiceRegistry implements ServiceRegistry{
     }
 
     @Override
-    public Object getService(String name) {
+    public Object getServiceProvider(String name) {
         Object service = serviceMap.get(name);
 
         if(service == null){

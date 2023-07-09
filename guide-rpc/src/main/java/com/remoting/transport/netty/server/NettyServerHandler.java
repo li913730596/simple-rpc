@@ -3,9 +3,9 @@ package com.remoting.transport.netty.server;
 import com.common.enums.RpcResponseCode;
 import com.common.message.RpcRequest;
 import com.common.message.RpcResponse;
+import com.common.provider.ServiceProvider;
 import com.remoting.transport.netty.handlers.RpcRequestHandler;
-import com.common.registry.DefaultServiceRegistry;
-import com.common.registry.ServiceRegistry;
+import com.common.provider.ServiceProviderImpl;
 import com.utils.concurrent.ThreadPoolFactory;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -13,19 +13,18 @@ import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
 public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
-    private static ServiceRegistry serviceRegistry;
+    private static ServiceProvider serviceRegistry;
     private static RpcRequestHandler rpcRequestHandler;
     private static ExecutorService threadPool;
 
     static {
-        serviceRegistry = new DefaultServiceRegistry();
+        serviceRegistry = new ServiceProviderImpl();
         rpcRequestHandler = new RpcRequestHandler();
+//        serviceProvider = new ServiceProviderImpl();
         threadPool = ThreadPoolFactory.createDefaultThreadPool("netty-server-handler-rpc-pool");
 
     }
@@ -38,7 +37,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
                            log.info("server recive msg {}", msg);
                            RpcRequest rpcRequest = (RpcRequest) msg;
                            String interfaceName = rpcRequest.getInterfaceName();
-                           Object service = serviceRegistry.getService(interfaceName);
+                           Object service = serviceRegistry.getServiceProvider(interfaceName);
                            Object backObj = rpcRequestHandler.handle(rpcRequest, service);
 
                            if (backObj == null) {

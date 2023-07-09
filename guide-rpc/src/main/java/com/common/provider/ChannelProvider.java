@@ -1,5 +1,6 @@
-package com.remoting.transport.netty.client;
+package com.common.provider;
 
+import com.remoting.transport.netty.client.NettyClient;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 

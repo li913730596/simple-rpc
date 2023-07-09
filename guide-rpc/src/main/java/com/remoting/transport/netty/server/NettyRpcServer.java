@@ -2,9 +2,14 @@ package com.remoting.transport.netty.server;
 
 import com.common.message.RpcRequest;
 import com.common.message.RpcResponse;
+import com.common.provider.ServiceProvider;
+import com.common.provider.ServiceProviderImpl;
+import com.common.registry.ServiceRegistry;
+import com.common.registry.ZkServiceRegistry;
 import com.remoting.transport.codec.RpcMessageDecoder;
 import com.remoting.transport.codec.RpcMessageEncoder;
 import com.common.serializer.kryo.KryoSerialize;
+import com.utils.zk.CuratorHelper;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -14,16 +19,25 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
+
 @Slf4j
 public class NettyRpcServer {
     private static final ServerBootstrap bootstrap;
     private static final NioEventLoopGroup boss = new NioEventLoopGroup();
     private static final NioEventLoopGroup worker = new NioEventLoopGroup();
     private static final KryoSerialize kryoSerialize = new KryoSerialize();
+    private final ServiceProvider serviceProvider;
+    private final ServiceRegistry serviceRegistry;
+    private String host;
+    private Integer port;
 
-    public static void main(String[] args) {
-        NettyRpcServer rpcServer = new NettyRpcServer();
-        rpcServer.run(8080);
+
+    public NettyRpcServer(String host, Integer port) {
+        this.host = host;
+        this.port = port;
+        serviceProvider = new ServiceProviderImpl();
+        serviceRegistry = new ZkServiceRegistry();
     }
 
     static {
@@ -46,7 +60,15 @@ public class NettyRpcServer {
                 });
     }
 
-    public void run(int port){
+    public <T> void publishService(Object service, Class<T> serviceClass){
+        //在服务器上保存一份服务实例
+        serviceProvider.addServiceProvider(service);
+        //在ZookeePeer中存储服务对应的服务器地址，供客户端连接
+        serviceRegistry.registerService(serviceClass.getCanonicalName(), new InetSocketAddress(host,port));
+        run();
+    }
+
+    public void run(){
         try {
             ChannelFuture bind = bootstrap.bind(port);
             Channel channel = bind.sync().channel();

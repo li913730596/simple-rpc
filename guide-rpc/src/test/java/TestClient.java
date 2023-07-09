@@ -1,6 +1,6 @@
 import com.remoting.transport.client.ClientTransport;
 import com.remoting.transport.client.RpcClientProxy;
-import com.remoting.transport.netty.client.ChannelProvider;
+import com.common.provider.ChannelProvider;
 import com.remoting.transport.netty.client.NettyRpcClientTransport;
 import lombok.extern.slf4j.Slf4j;
 import service.Hello;
