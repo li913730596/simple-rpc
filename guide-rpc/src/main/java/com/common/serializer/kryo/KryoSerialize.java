@@ -34,7 +34,7 @@ public class KryoSerialize implements Serializer {
             return bytes;
 
         } catch (IOException e) {
-            log.error("kryo加密出错",e);
+            log.error("kryo序列化出错",e);
             throw new RuntimeException(e);
         }
     }
@@ -51,7 +51,7 @@ public class KryoSerialize implements Serializer {
             return object;
 
         } catch (IOException e) {
-            log.error("kryo解密出错",e);
+            log.error("kryo反序列化出错",e);
             throw new RuntimeException(e);
         }
 

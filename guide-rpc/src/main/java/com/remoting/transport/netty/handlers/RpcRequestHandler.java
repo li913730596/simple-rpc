@@ -26,13 +26,13 @@ public class RpcRequestHandler {
     }
 
     public Object invokeTargetMethod(RpcRequest rpcRequest, Object service) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
-        log.info("{}",service.getClass());
-        log.info("{}",service.getClass().getName());
-        log.info("{}",service.getClass().getMethod(rpcRequest.getMethodName(),rpcRequest.getParamType()));
+//        log.info("{}",service.getClass());
+//        log.info("{}",service.getClass().getName());
+//        log.info("{}",service.getClass().getMethod(rpcRequest.getMethodName(),rpcRequest.getParamType()));
         Class<?> aClass = Class.forName(service.getClass().getName());
         Method method = aClass.getMethod(rpcRequest.getMethodName(),rpcRequest.getParamType());
         if (method == null){
-            return RpcResponse.fail(RpcResponseCode.FAIL);
+            return RpcResponse.fail(RpcResponseCode.FAIL, rpcRequest.getRequestId());
         }
         return method.invoke(service, rpcRequest.getParameters());
     }

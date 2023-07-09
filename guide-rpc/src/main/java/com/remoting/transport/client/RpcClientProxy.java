@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * proxy主要是用来发送rpcRequest
@@ -13,10 +14,12 @@ import java.lang.reflect.Proxy;
 @Slf4j
 public class RpcClientProxy implements InvocationHandler {
 
-    private RpcClient rpcClient;
+    private ClientTransport rpcClient;
+    private AtomicInteger requestId;
 
-    public RpcClientProxy(RpcClient rpcClient) {
+    public RpcClientProxy(ClientTransport rpcClient) {
         this.rpcClient = rpcClient;
+        requestId = new AtomicInteger(1);
     }
 
     public <T> T getClient(Class<T> clazz){
@@ -30,6 +33,7 @@ public class RpcClientProxy implements InvocationHandler {
                 .paramType(method.getParameterTypes())
                 .methodName(method.getName())
                 .parameters(objects)
+                .requestId(String.valueOf(requestId.getAndIncrement()))
                 .build();
 
         return rpcClient.sendMessage(rpcRequest);

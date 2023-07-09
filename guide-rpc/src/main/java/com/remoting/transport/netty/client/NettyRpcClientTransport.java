@@ -1,8 +1,10 @@
 package com.remoting.transport.netty.client;
 
+import com.common.enums.RpcErrorMessageEnum;
+import com.common.exceptions.RpcException;
 import com.common.message.RpcRequest;
 import com.common.message.RpcResponse;
-import com.remoting.transport.client.RpcClient;
+import com.remoting.transport.client.ClientTransport;
 import com.remoting.transport.codec.RpcMessageDecoder;
 import com.remoting.transport.codec.RpcMessageEncoder;
 import com.common.serializer.kryo.KryoSerialize;
@@ -19,47 +21,17 @@ import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class NettyRpcClient implements RpcClient {
+public class NettyRpcClientTransport implements ClientTransport {
 
-    private int port;
-    private String ip;
+    private Channel channel;
 
-    private static final Bootstrap bootstrap;
-
-    public static void main(String[] args) throws InterruptedException {
-//        RpcClient rpcClient = new RpcClient(8080,"127.0.0.1");
-//        rpcClient.start();
-        Channel channel = NettyRpcClient.bootstrap.connect("127.0.0.1", 8080).sync().channel();
-        channel.writeAndFlush("111");
+    public NettyRpcClientTransport(Channel channel) {
+        this.channel = channel;
     }
-
-    public NettyRpcClient(int port, String ip) {
-        this.port = port;
-        this.ip = ip;
-    }
-
-    static {
-        NioEventLoopGroup group = new NioEventLoopGroup();
-        KryoSerialize kryoSerialize = new KryoSerialize();
-        bootstrap = new Bootstrap()
-                .group(group)
-                .channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
-                        socketChannel.pipeline().addLast(new RpcMessageDecoder(RpcResponse.class,kryoSerialize));
-                        socketChannel.pipeline().addLast(new RpcMessageEncoder(RpcRequest.class,kryoSerialize));
-                        socketChannel.pipeline().addLast(new NettyClientHandler());
-                    }
-                });
-    }
-
 
     @Override
     public Object sendMessage(RpcRequest rpcRequest) {
         try {
-            Channel channel = bootstrap.connect(ip, port).sync().channel();
             if(channel != null) {
                 channel.writeAndFlush(rpcRequest);
                 ChannelFuture channelFuture = channel.closeFuture();
@@ -76,7 +48,15 @@ public class NettyRpcClient implements RpcClient {
 
                 AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse");
                 RpcResponse rpcResponse = channel.attr(key).get();
-                return rpcResponse.getData();
+                if(rpcResponse.getResponseId().equals(rpcRequest.getRequestId())) {
+                    log.info("调用服务成功,serviceName :{}, RpcResponse:{}",
+                            rpcRequest.getInterfaceName(),rpcResponse);
+                    return rpcResponse.getData();
+                }
+                log.error("调用服务失败,serviceName :{}, RpcResponse:{}",
+                        rpcRequest.getInterfaceName(),rpcResponse);
+
+                throw new RpcException(RpcErrorMessageEnum.REQUEST_NOT_MATCH_RESPONSE);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
