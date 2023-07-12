@@ -4,7 +4,7 @@ public interface ServiceProvider {
     /**
      * 保存服务提供者
      */
-    <T> void addServiceProvider(T service);
+    <T> void addServiceProvider(T service, Class<T> serviceClass);
 
 
     /**

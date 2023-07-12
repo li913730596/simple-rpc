@@ -5,6 +5,10 @@ import com.common.enums.RpcResponseCode;
 import com.common.exceptions.RpcException;
 import com.common.message.RpcRequest;
 import com.common.message.RpcResponse;
+import com.common.provider.ServiceProvider;
+import com.common.provider.ServiceProviderImpl;
+import com.common.registry.ServiceRegistry;
+import com.common.registry.ZkServiceRegistry;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
@@ -12,11 +16,19 @@ import java.lang.reflect.Method;
 
 @Slf4j
 public class RpcRequestHandler {
-    public Object handle(RpcRequest rpcRequest, Object service){
-        log.info("{}",service);
+
+    /**
+     * 使用ServiceProvider获取服务对象
+     */
+    public static final ServiceProvider serviceRegister;
+    static {
+        serviceRegister = new ServiceProviderImpl();
+    }
+    public Object handle(RpcRequest rpcRequest){
+        Object provider = serviceRegister.getServiceProvider(rpcRequest.getInterfaceName());
+        log.info("{}",provider);
         try {
-            Object returnValue =  invokeTargetMethod(rpcRequest, service);
-//            return RpcResponse.success(returnValue);
+            Object returnValue =  invokeTargetMethod(rpcRequest, provider);
             return returnValue;
 
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
@@ -26,9 +38,6 @@ public class RpcRequestHandler {
     }
 
     public Object invokeTargetMethod(RpcRequest rpcRequest, Object service) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
-//        log.info("{}",service.getClass());
-//        log.info("{}",service.getClass().getName());
-//        log.info("{}",service.getClass().getMethod(rpcRequest.getMethodName(),rpcRequest.getParamType()));
         Class<?> aClass = Class.forName(service.getClass().getName());
         Method method = aClass.getMethod(rpcRequest.getMethodName(),rpcRequest.getParamType());
         if (method == null){

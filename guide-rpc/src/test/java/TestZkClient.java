@@ -26,7 +26,7 @@ public class TestZkClient {
         String hostName = address.getHostName();
         int port = address.getPort();
 
-        RpcClientProxy proxy = new RpcClientProxy(new NettyRpcClientTransport(new ChannelProvider(hostName, port).getChannel()));
+        RpcClientProxy proxy = new RpcClientProxy(new NettyRpcClientTransport(new ChannelProvider().getChannel(address)));
         HelloService service = proxy.getClient(HelloService.class);
         String s = service.sayHello(new Hello("李红", "11"));
         System.out.println(s);

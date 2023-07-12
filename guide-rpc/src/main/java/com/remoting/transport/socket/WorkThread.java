@@ -1,6 +1,8 @@
 package com.remoting.transport.socket;
 
 import com.common.message.RpcRequest;
+import com.remoting.transport.netty.handlers.RpcRequestHandler;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,13 +13,23 @@ import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class WorkThread implements Runnable{
-    private Socket socket;
-    private Object service;
+@Slf4j
 
-    public WorkThread(Socket socket, Object service) {
+public class WorkThread<T> implements Runnable{
+    private Socket socket;
+    private T service;
+    private Class<T> serviceClass;
+
+    private static final RpcRequestHandler rpcRequestHandler;
+
+    static {
+        rpcRequestHandler = new RpcRequestHandler();
+    }
+
+    public WorkThread(Socket socket, T service, Class<T> serviceClass) {
         this.socket = socket;
         this.service = service;
+        this.serviceClass = serviceClass;
     }
 
     @Override
@@ -27,15 +39,15 @@ public class WorkThread implements Runnable{
 
             RpcRequest rpcRequest = (RpcRequest) oips.readObject();
 
-            Method method = service.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParamType());
-            Object invoke = method.invoke(service, rpcRequest.getParameters());
+            RpcRequestHandler.serviceRegister.addServiceProvider(service,serviceClass);
+//            Method method = service.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParamType());
+//            Object invoke = method.invoke(service, rpcRequest.getParameters());
+            Object handle = rpcRequestHandler.handle(rpcRequest);
 
-            oops.writeObject(invoke);
+            oops.writeObject(handle);
             oops.flush();
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

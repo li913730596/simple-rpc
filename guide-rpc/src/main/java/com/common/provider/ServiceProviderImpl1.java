@@ -12,7 +12,7 @@ public class ServiceProviderImpl1 implements ServiceProvider {
     private static final Map<String,Object> serviceMap = new ConcurrentHashMap<>();
     private static final Set<String> registedService = ConcurrentHashMap.newKeySet();
     @Override
-    public <T> void addServiceProvider(T service) {
+    public <T> void addServiceProvider(T service, Class<T> serviceClass) {
         String serviceName = service.getClass().getCanonicalName();
         if(serviceMap.get(serviceName) != null){
             return;

@@ -60,9 +60,9 @@ public class NettyRpcServer {
                 });
     }
 
-    public <T> void publishService(Object service, Class<T> serviceClass){
+    public <T> void publishService(T service, Class<T> serviceClass){
         //在服务器上保存一份服务实例
-        serviceProvider.addServiceProvider(service);
+        serviceProvider.addServiceProvider(service, serviceClass);
         //在ZookeePeer中存储服务对应的服务器地址，供客户端连接
         serviceRegistry.registerService(serviceClass.getCanonicalName(), new InetSocketAddress(host,port));
         run();

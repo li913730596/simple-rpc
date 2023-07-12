@@ -15,7 +15,8 @@ public class ServiceProviderImpl implements ServiceProvider {
 
     @Override
     //将对象的所有实现类全部注册  TODO 实现成注解
-    public <T> void addServiceProvider(T service){
+    public <T> void addServiceProvider(T service, Class<T> serviceClass){
+
         if(service == null){
             throw new RpcException(RpcErrorMessageEnum.SERVICE_CAN_NOT_BE_FOUND);
         }

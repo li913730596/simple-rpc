@@ -6,11 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import service.Hello;
 import service.HelloService;
 
+import java.net.InetSocketAddress;
+
 @Slf4j
 public class TestClient {
     public static void main(String[] args) throws InterruptedException {
-        ChannelProvider channelProvider = new ChannelProvider("127.0.0.1", 8080);
-        ClientTransport client = new NettyRpcClientTransport(channelProvider.getChannel());
+        ChannelProvider channelProvider = new ChannelProvider();
+        ClientTransport client = new NettyRpcClientTransport(channelProvider.getChannel(new InetSocketAddress("127.0.0.1",8080)));
         RpcClientProxy proxy = new RpcClientProxy(client);
 
         HelloService proxyClient = proxy.getClient(HelloService.class);

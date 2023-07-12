@@ -48,6 +48,7 @@ public class NettyRpcClientTransport implements ClientTransport {
 
                 AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse");
                 RpcResponse rpcResponse = channel.attr(key).get();
+                //TODO 检验 request 和 response
                 if(rpcResponse.getResponseId().equals(rpcRequest.getRequestId())) {
                     log.info("调用服务成功,serviceName :{}, RpcResponse:{}",
                             rpcRequest.getInterfaceName(),rpcResponse);

@@ -17,15 +17,13 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
-    private static ServiceProvider serviceRegistry;
-    private static RpcRequestHandler rpcRequestHandler;
-    private static ExecutorService threadPool;
+    private static final RpcRequestHandler rpcRequestHandler;
+    private static final ExecutorService threadPool;
+    private static final String THREAD_NAME_PREFIX = "netty-server-handler-rpc-pool";
 
     static {
-        serviceRegistry = new ServiceProviderImpl();
         rpcRequestHandler = new RpcRequestHandler();
-//        serviceProvider = new ServiceProviderImpl();
-        threadPool = ThreadPoolFactory.createDefaultThreadPool("netty-server-handler-rpc-pool");
+        threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
 
     }
     @Override //TODO  关于ByteBuf的释放问题
@@ -36,9 +34,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
                        if (msg instanceof RpcRequest) {
                            log.info("server recive msg {}", msg);
                            RpcRequest rpcRequest = (RpcRequest) msg;
-                           String interfaceName = rpcRequest.getInterfaceName();
-                           Object service = serviceRegistry.getServiceProvider(interfaceName);
-                           Object backObj = rpcRequestHandler.handle(rpcRequest, service);
+                           Object backObj = rpcRequestHandler.handle(rpcRequest);
 
                            if (backObj == null) {
                                RpcResponse<Object> rpcResponse = RpcResponse.fail(RpcResponseCode.FAIL, rpcRequest.getRequestId());
