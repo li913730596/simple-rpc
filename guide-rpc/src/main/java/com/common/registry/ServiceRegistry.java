@@ -6,5 +6,4 @@ import java.net.InetSocketAddress;
 
 public interface ServiceRegistry {
     void registerService(String serviceName, InetSocketAddress inetSocketAddress);
-    Object lookupService(String serviceName);
 }

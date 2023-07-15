@@ -1,4 +1,5 @@
 import com.common.provider.ChannelProvider;
+import com.common.registry.ZkServiceDiscovery;
 import com.common.registry.ZkServiceRegistry;
 import com.remoting.transport.client.RpcClientProxy;
 import com.remoting.transport.netty.client.NettyClient;
@@ -20,8 +21,8 @@ public class TestZkClient {
    }
 
     public static void main(String[] args) {
-        ZkServiceRegistry zkServiceRegistry = new ZkServiceRegistry();
-        InetSocketAddress address = zkServiceRegistry.lookupService(HelloService.class.getCanonicalName());
+        ZkServiceDiscovery zkServiceDiscovery = new ZkServiceDiscovery();
+        InetSocketAddress address = zkServiceDiscovery.lookupService(HelloService.class.getCanonicalName());
 
         String hostName = address.getHostName();
         int port = address.getPort();
